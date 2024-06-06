@@ -6,11 +6,15 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 import requests
 import json
+from django.conf import settings
 
 def home(request):
     form = DestinationForm()
-    context = {'form': form}
-    return render(request, 'transportation/home.html', context)
+    context = {
+        'form': form,
+        'google_api_key': settings.GOOGLE_API_KEY
+    }
+    return render(request, 'finder/home.html', context)
 
 def get_nearest_station(request):
     if request.method == 'POST':
@@ -41,7 +45,7 @@ def signup(request):
             return redirect('home')
     else:
         form = UserCreationForm()
-    return render(request, 'registration/signup.html', {'form': form})
+    return render(request, 'authentication/signup.html', {'form': form})
 
 def login_view(request):
     if request.method == 'POST':
@@ -52,4 +56,4 @@ def login_view(request):
             return redirect('home')
     else:
         form = AuthenticationForm()
-    return render(request, 'registration/login.html', {'form': form})
+    return render(request, 'authentication/login.html', {'form': form})

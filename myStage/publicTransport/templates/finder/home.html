@@ -1,0 +1,86 @@
+{% extends 'finder/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Find Public Transport</h2>
+    <form id="destination-form">
+        <div class="form-group">
+            <label for="destination">Enter your destination:</label>
+            {{ form.destination }}
+        </div>
+        <button type="submit" class="btn btn-primary">Find Route</button>
+    </form>
+    <div id="map" style="height: 500px; width: 100%; margin-top: 20px;"></div>
+</div>
+
+<script>
+    function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 12,
+            center: {lat: -1.2921, lng: 36.8219}  // Default center around Nairobi
+        });
+
+        var directionsService = new google.maps.DirectionsService();
+        var directionsRenderer = new google.maps.DirectionsRenderer();
+        directionsRenderer.setMap(map);
+
+        document.getElementById('destination-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var destinationId = document.getElementById('id_destination').value;
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    fetch('/get_nearest_station/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({destination_id: destinationId})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert(data.error);
+                        } else {
+                            var stationLocation = {
+                                lat: data.latitude,
+                                lng: data.longitude
+                            };
+
+                            directionsService.route({
+                                origin: userLocation,
+                                destination: stationLocation,
+                                travelMode: 'DRIVING'
+                            }, function(response, status) {
+                                if (status === 'OK') {
+                                    directionsRenderer.setDirections(response);
+                                } else {
+                                    window.alert('Directions request failed due to ' + status);
+                                }
+                            });
+                        }
+                    });
+                }, function() {
+                    handleLocationError(true, map.getCenter());
+                });
+            } else {
+                handleLocationError(false, map.getCenter());
+            }
+        });
+    }
+
+    function handleLocationError(browserHasGeolocation, pos) {
+        window.alert(browserHasGeolocation ?
+                      'Error: The Geolocation service failed.' :
+                      'Error: Your browser doesn\'t support geolocation.');
+    }
+</script>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap"></script>
+{% endblock %}

@@ -1,0 +1,71 @@
+/* styles.css */
+
+/* General styling */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa;
+}
+
+/* Navbar styling */
+.navbar {
+  background-color: #4169e1; /* Royal Blue */
+}
+
+.navbar .navbar-brand, .navbar .nav-link {
+  color: #ffffff;
+}
+
+.navbar .nav-link:hover {
+  color: #dcdcdc;
+}
+
+/* Form styling */
+form {
+  margin: 20px;
+}
+
+form .form-group {
+  margin-bottom: 15px;
+}
+
+form .form-control {
+  border: 1px solid #4169e1;
+  border-radius: 4px;
+}
+
+form .btn-primary {
+  background-color: #4169e1;
+  border: none;
+}
+
+form .btn-primary:hover {
+  background-color: #365cad;
+}
+
+/* Map styling */
+#map {
+  margin: 20px auto;
+  border: 2px solid #4169e1;
+}
+
+/* Footer styling */
+footer {
+  background-color: #4169e1;
+  color: #ffffff;
+  text-align: center;
+  padding: 10px 0;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+}
+
+.footer-links a {
+  color: #ffffff;
+  margin: 0 10px;
+}
+
+.footer-links a:hover {
+  color: #dcdcdc;
+}
