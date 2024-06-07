@@ -1,19 +1,25 @@
 {% extends 'finder/base.html' %}
+{% load static %}
 
 {% block content %}
+{% if user.is_authenticated %}
 <div class="container">
+    <!-- Display content for authenticated users -->
     <h2>Find Public Transport</h2>
     <form id="destination-form">
         <div class="form-group">
             <label for="destination">Enter your destination:</label>
             {{ form.destination }}
         </div>
-        <button type="submit" class="btn btn-primary">Find Route</button>
+        <button type="submit" class="btn btn-primary">Find Stage</button>
     </form>
+    
+    <div id="sacco-info"></div>
     <div id="map" style="height: 500px; width: 100%; margin-top: 20px;"></div>
 </div>
 
 <script>
+    // Initialize the map and handle form submission for finding routes.
     function initMap() {
         var map = new google.maps.Map(document.getElementById('map'), {
             zoom: 12,
@@ -24,10 +30,12 @@
         var directionsRenderer = new google.maps.DirectionsRenderer();
         directionsRenderer.setMap(map);
 
+        // Handle form submission
         document.getElementById('destination-form').addEventListener('submit', function(event) {
             event.preventDefault();
             var destinationId = document.getElementById('id_destination').value;
 
+            // Check for geolocation support
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
                     var userLocation = {
@@ -35,6 +43,7 @@
                         lng: position.coords.longitude
                     };
 
+                    // Fetch nearest station and display route
                     fetch('/get_nearest_station/', {
                         method: 'POST',
                         headers: {
@@ -56,10 +65,29 @@
                             directionsService.route({
                                 origin: userLocation,
                                 destination: stationLocation,
-                                travelMode: 'DRIVING'
+                                travelMode: 'WALKING'
                             }, function(response, status) {
                                 if (status === 'OK') {
                                     directionsRenderer.setDirections(response);
+                                    
+                                    // Fetch and display sacco information
+                                    fetch('/get_sacco_info/', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRFToken': '{{ csrf_token }}'
+                                        },
+                                        body: JSON.stringify({destination_id: destinationId})
+                                    })
+                                    .then(response => response.json())
+                                    .then(saccoData => {
+                                        var saccoInfo = document.getElementById('sacco-info');
+                                        saccoInfo.innerHTML = `
+                                            <h3>Sacco Information</h3>
+                                            <p><strong>Sacco Name:</strong> ${saccoData.sacco_name}</p>
+                                            <p><strong>Sacco Number:</strong> ${saccoData.sacco_number}</p>
+                                        `;
+                                    });
                                 } else {
                                     window.alert('Directions request failed due to ' + status);
                                 }
@@ -75,6 +103,7 @@
         });
     }
 
+    // Handle geolocation errors
     function handleLocationError(browserHasGeolocation, pos) {
         window.alert(browserHasGeolocation ?
                       'Error: The Geolocation service failed.' :
@@ -82,5 +111,30 @@
     }
 </script>
 
+<!-- Load the Google Maps JavaScript API with the provided API key -->
 <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap"></script>
+</div>
+{% else %}
+<!-- Landing page for non-authenticated users -->
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Welcome to myStage!</h2>
+            <p class="lead">Your one-stop solution for finding public transport routes in Nairobi.</p>
+            <p>With myStage, you can easily discover the nearest transport stations and plan your route with ease.</p>
+            <p>Sign up now to unlock the full potential of myStage:</p>
+            <ul>
+                <li>Save your favorite destinations</li>
+                <li>Receive personalized route recommendations</li>
+                <li>Stay updated with real-time traffic information</li>
+            </ul>
+            <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a>
+            <a href="{% url 'login' %}" class="btn btn-secondary">Log In</a>
+        </div>
+        <div class="col-md-6">
+            <img src="https://expression.africa/wp-content/uploads/2021/12/Public-transport-in-Kenya.jpg" alt="Public Transport" class="img-fluid">
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

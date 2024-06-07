@@ -10,15 +10,35 @@ body {
 
 /* Navbar styling */
 .navbar {
-  background-color: #4169e1; /* Royal Blue */
+  background-color: #4169E1; /* Royal Blue */
 }
 
-.navbar .navbar-brand, .navbar .nav-link {
-  color: #ffffff;
+.navbar .navbar-brand,
+.navbar .nav-link {
+  color: white;
 }
 
 .navbar .nav-link:hover {
-  color: #dcdcdc;
+  color: #ffcc00;
+}
+
+.navbar .nav-item .btn {
+  background-color: #ffcc00; /* Bright yellow */
+  color: black;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  border-radius: 4px;
+  margin-left: 5px; /* Add some spacing between buttons */
+}
+
+.navbar .nav-item .btn:hover {
+  background-color: #ffa500; /* Darker yellow on hover */
+  color: white;
+}
+
+.container {
+  margin-top: 20px;
 }
 
 /* Form styling */
@@ -68,4 +88,25 @@ footer {
 
 .footer-links a:hover {
   color: #dcdcdc;
+}
+
+.landing-page {
+  text-align: center;
+  padding: 50px 0;
+}
+
+.jumbotron {
+  background-color: #4169E1;
+  color: white;
+}
+
+.jumbotron .btn-primary {
+  background-color: #ffcc00;
+  color: black;
+  border: none;
+}
+
+.jumbotron .btn-primary:hover {
+  background-color: #ffa500;
+  color: white;
 }
